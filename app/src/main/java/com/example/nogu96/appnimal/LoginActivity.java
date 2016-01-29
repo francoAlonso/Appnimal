@@ -3,33 +3,30 @@ package com.example.nogu96.appnimal;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Cache;
-import com.android.volley.Network;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HurlStack;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.w3c.dom.Text;
+
 
 public class LoginActivity extends Activity {
 
-    EditText txtUsuario, txtContraseña;
     Button btnLogin;
+    TextView mStatusTextView;
     MensajeToast toast;
-    RequestQueue requestQueue;
     String url = "http://192.168.0.6/ejercicio/Appnimal/index.php";
+
+    private GoogleApiClient mGoogleApiClient;
+    private static final int RC_SIGN_IN = 9001;
+    private static final String TAG = "LoginActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,64 +34,59 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Instantiate the cache
-        Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
-        // Set up the network to use HttpURLConnection as the HTTP client.
-        Network network = new BasicNetwork(new HurlStack());
-        // Instantiate the RequestQueue with the cache and network.
-        requestQueue = new RequestQueue(cache, network);
-
-
-        txtUsuario = (EditText)findViewById(R.id.txt_usuario);
-        txtContraseña = (EditText)findViewById(R.id.txt_contraseña);
         btnLogin = (Button)findViewById(R.id.btnLogin);
+        mStatusTextView = (TextView)findViewById(R.id.signed_in_fmt);
+
+        //[Start configure sign_in]
+        // Configure sign-in to request the user's ID, email address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        //[End configure sign_in]
+
+        // [START build_client]
+        // Build a GoogleApiClient with access to the Google Sign-In API and the
+        // options specified by gso.
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+        // [END build_client]
 
         //login
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                final String usuario = txtUsuario.getText().toString().trim();
-                final String contraseña = txtContraseña.getText().toString().trim();
-
-                StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                        new Response.Listener<String>() {
-                            @Override
-                            //mensaje de respuesta
-                            public void onResponse(String response) {
-                                if(response.trim().equals("success")){
-                                    Intent intent = new Intent(LoginActivity.this, MapActivity.class);
-                                    intent.putExtra("usuario", usuario);
-                                    startActivity(intent);
-                                }else{
-                                    toast = new MensajeToast(getApplicationContext(), response);
-                                }
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            //mensaje de error
-                            public void onErrorResponse(VolleyError error) {
-                                toast = new MensajeToast(getApplicationContext(), error.toString());
-                            }
-                        }){
-                    @Override
-                    //parametros a enviar
-                    protected Map<String, String> getParams() throws AuthFailureError {
-                        Map<String,String> map = new HashMap<String,String>();
-                        map.put("usuario", usuario);
-                        map.put("contraseña", contraseña);
-                        return map;
-                    }
-
-                };
-
-                RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-                requestQueue.add(stringRequest);
-                requestQueue.start();
+                Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+                startActivityForResult(signInIntent, RC_SIGN_IN);
             }
         });
 
     }//onCreate
+
+    // [START onActivityResult]
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleSignInResult(result);
+        }
+    }
+    // [END onActivityResult]
+
+    // [START handleSignInResult]
+    private void handleSignInResult(GoogleSignInResult result) {
+        Log.d(TAG, "handleSignInResult:" + result.isSuccess());
+        if (result.isSuccess()) {
+            // Signed in successfully, show authenticated UI.
+            GoogleSignInAccount acct = result.getSignInAccount();
+            mStatusTextView.setText("hola " + acct.getEmail());
+        }
+    }
+    // [END handleSignInResult]
+
 
 }//LoginActivity

@@ -1,26 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:gravity="center"
     android:layout_width="fill_parent" android:layout_height="fill_parent">
 
-    <EditText android:id="@+id/txt_usuario"
-        android:layout_width="200dp" android:layout_height="wrap_content"
-        android:hint="@string/txt_usuario"
-        android:gravity="center"/>
+    <RelativeLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_above="@+id/bottom_layout"
+        android:gravity="center">
 
-    <EditText android:id="@+id/txt_contraseña"
-        android:layout_width="200dp" android:layout_height="wrap_content"
-        android:hint="@string/txt_contraseña"
-        android:gravity="center"/>
+        <Button android:id="@+id/btnLogin"
+            android:layout_width="150dp" android:layout_height="wrap_content"
+            android:hint="@string/btnLogin" />
 
-    <Button android:id="@+id/btnLogin"
-        android:layout_width="150dp" android:layout_height="wrap_content"
-        android:hint="@string/btnLogin"
-        android:gravity="center"/>
+    </RelativeLayout>
 
-</LinearLayout>
+    <RelativeLayout android:id="@+id/bottom_layout"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="cambiar cuenta"
+            android:layout_alignParentStart="true" android:layout_alignParentLeft="true"/>
+
+        <CheckBox android:id="@+id/checkLogin"
+            android:layout_height="wrap_content" android:layout_width="wrap_content"
+            android:layout_alignParentEnd="true" android:layout_alignParentRight="true"
+            android:text="Auto conectarse"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>
 
