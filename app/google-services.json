@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_id": "appnimal-1204",
+    "project_number": "119451807298",
+    "name": "Appnimal"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:119451807298:android:9a7b87524450c50b",
+        "client_id": "android:com.appanimal",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.appanimal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "119451807298-vhoqilaltd8q9r9emslna30n4r497f0k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appanimal",
+            "certificate_hash": "DA39A3EE5E6B4B0D3255BFEF95601890AFD80709"
+          }
+        },
+        {
+          "client_id": "119451807298-cb4po6hpkol5ecb0qphs6rnu9vof1rp5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 1,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 2
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}
