@@ -4,8 +4,8 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <TextView android:id="@+id/txt_usuario"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <com.google.android.gms.maps.MapView android:id="@+id/mapview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
 
 </LinearLayout>
