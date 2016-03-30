@@ -2,6 +2,7 @@ package com.example.nogu96.appnimal;
 
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -10,11 +11,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -25,20 +30,21 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Iterator;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class LoginActivity extends Activity {
 
     TextView txtMensaje;
     SignInButton btnGoogleLogin;
     ProgressDialog mProgressDialog;
-
-    String jsonResponse;
 
     private GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 9001;
@@ -113,8 +119,10 @@ public class LoginActivity extends Activity {
             mProgressDialog.setMessage("Verificando db...");
 
             String mail = user.getEmail().toString();
-            jsonRequest(mail);
-            //makeJsonRequest();
+            //jsonRequest(mail);
+            //customRequest();
+            //otroRequest();
+            jsonArrayRequest();
         }
     }
 
@@ -137,20 +145,7 @@ public class LoginActivity extends Activity {
 
                 hideProgressDialog();
 
-                ArrayList<String> arr = new ArrayList<String>();
-                Iterator iter = response.keys();
-
-                while(iter.hasNext()) {
-                    String key = (String) iter.next();
-
-                    try {
-                        arr.add(response.getString(key));
-                    }catch (JSONException e){
-                        txtMensaje.setText("Error en try onResponse " + e.toString());
-                    }
-                }
-
-                txtMensaje.setText(arr.toString());
+                txtMensaje.setText(response.toString());
 
             }
         }, new Response.ErrorListener() {
@@ -166,9 +161,102 @@ public class LoginActivity extends Activity {
 
         // Access the RequestQueue through your singleton class.
         requestQueue.add(jsObjRequest);
+    }
+
+    public void customRequest(){
+
+        Volley.newRequestQueue(getApplicationContext()).add(
+                new JsonRequest<JSONArray>(Request.Method.GET, AppConfig.URL_GETUSERS, null,
+                        new Response.Listener<JSONArray>() {
+                            @Override
+                            public void onResponse(JSONArray response) {
+
+                                hideProgressDialog();
+
+                                txtMensaje.setText(response.toString());
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        hideProgressDialog();
+
+                        txtMensaje.setText(error.toString());
+                    }
+                }) {
+                    @Override
+                    protected Map<String, String> getParams() {
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put("Mail", "pepe");
+                        return params;
+                    }
+
+                    @Override
+                    protected Response<JSONArray> parseNetworkResponse(
+                            NetworkResponse response) {
+                        try {
+                            String jsonString = new String(response.data,
+                                    HttpHeaderParser
+                                            .parseCharset(response.headers));
+                            return Response.success(new JSONArray(jsonString),
+                                    HttpHeaderParser
+                                            .parseCacheHeaders(response));
+                        } catch (UnsupportedEncodingException e) {
+                            return Response.error(new ParseError(e));
+                        } catch (JSONException je) {
+                            return Response.error(new ParseError(je));
+                        }
+                    }
+                });
 
     }
 
+    public void otroRequest(){
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        CustomRequest jsObjRequest = new CustomRequest(Request.Method.GET, AppConfig.URL_GETUSERS, null,
+                new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                hideProgressDialog();
+
+                txtMensaje.setText(response.toString());
+            }
+        },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        hideProgressDialog();
+
+                        txtMensaje.setText(error.toString());
+                    }
+                });
+        requestQueue.add(jsObjRequest);
+
+    }
+
+    private void jsonArrayRequest(){
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        JsonArrayRequest jsonRequest = new JsonArrayRequest(Request.Method.GET, AppConfig.URL_GETUSERS,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        hideProgressDialog();
+
+                        txtMensaje.setText(response.toString());
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        hideProgressDialog();
+
+                        txtMensaje.setText(error.toString());
+                    }
+                });
+        requestQueue.add(jsonRequest);
+    }
 
         @Override
     public void onStart() {
@@ -187,7 +275,7 @@ public class LoginActivity extends Activity {
                 // TODO: Make sure this auto-generated app deep link URI is correct.
                 Uri.parse("android-app://com.example.nogu96.appnimal/http/host/path")
         );
-        AppIndex.AppIndexApi.start(mGoogleApiClient, viewAction);
+            AppIndex.AppIndexApi.start(mGoogleApiClient, viewAction);
     }
 
     @Override
