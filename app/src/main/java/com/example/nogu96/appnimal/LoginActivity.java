@@ -2,7 +2,6 @@ package com.example.nogu96.appnimal;
 
 
 import android.app.Activity;
-import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -18,7 +17,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.appindexing.Action;
@@ -35,9 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class LoginActivity extends Activity {
@@ -119,126 +115,18 @@ public class LoginActivity extends Activity {
             mProgressDialog.setMessage("Verificando db...");
 
             String mail = user.getEmail().toString();
-            //jsonRequest(mail);
-            //customRequest();
-            //otroRequest();
-            jsonArrayRequest();
+            jsonArrayRequest(mail);
         }
     }
 
-    private void jsonRequest(final String mail){
-
-        JSONObject params = new JSONObject();
-        try {
-
-            params.put("mail", mail);
-
-        } catch (JSONException e) {
-
-            txtMensaje.setText("Error en params jsonRequest " + e.toString());
-        }
-
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, AppConfig.URL_GETUSERS, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-
-                hideProgressDialog();
-
-                txtMensaje.setText(response.toString());
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-                hideProgressDialog();
-
-                txtMensaje.setText("Error en ErrorListener " + error.toString());
-
-            }
-        }); //JsonRequest
-
-        // Access the RequestQueue through your singleton class.
-        requestQueue.add(jsObjRequest);
-    }
-
-    public void customRequest(){
-
-        Volley.newRequestQueue(getApplicationContext()).add(
-                new JsonRequest<JSONArray>(Request.Method.GET, AppConfig.URL_GETUSERS, null,
-                        new Response.Listener<JSONArray>() {
-                            @Override
-                            public void onResponse(JSONArray response) {
-
-                                hideProgressDialog();
-
-                                txtMensaje.setText(response.toString());
-                            }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                        hideProgressDialog();
-
-                        txtMensaje.setText(error.toString());
-                    }
-                }) {
-                    @Override
-                    protected Map<String, String> getParams() {
-                        Map<String, String> params = new HashMap<String, String>();
-                        params.put("Mail", "pepe");
-                        return params;
-                    }
-
-                    @Override
-                    protected Response<JSONArray> parseNetworkResponse(
-                            NetworkResponse response) {
-                        try {
-                            String jsonString = new String(response.data,
-                                    HttpHeaderParser
-                                            .parseCharset(response.headers));
-                            return Response.success(new JSONArray(jsonString),
-                                    HttpHeaderParser
-                                            .parseCacheHeaders(response));
-                        } catch (UnsupportedEncodingException e) {
-                            return Response.error(new ParseError(e));
-                        } catch (JSONException je) {
-                            return Response.error(new ParseError(je));
-                        }
-                    }
-                });
-
-    }
-
-    public void otroRequest(){
+    private void jsonArrayRequest(String mail){
 
         RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-        CustomRequest jsObjRequest = new CustomRequest(Request.Method.GET, AppConfig.URL_GETUSERS, null,
-                new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                hideProgressDialog();
 
-                txtMensaje.setText(response.toString());
-            }
-        },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        hideProgressDialog();
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put(AppConfig.MAIL, mail);
 
-                        txtMensaje.setText(error.toString());
-                    }
-                });
-        requestQueue.add(jsObjRequest);
-
-    }
-
-    private void jsonArrayRequest(){
-
-        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-        JsonArrayRequest jsonRequest = new JsonArrayRequest(Request.Method.GET, AppConfig.URL_GETUSERS,
+        JsonArrayRequest jsonRequest = new JsonArrayRequest(Request.Method.GET, AppConfig.URL_MAIL, mail,
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
@@ -255,6 +143,7 @@ public class LoginActivity extends Activity {
                         txtMensaje.setText(error.toString());
                     }
                 });
+
         requestQueue.add(jsonRequest);
     }
 
